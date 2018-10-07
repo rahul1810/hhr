@@ -1,6 +1,7 @@
 package com.heavenhr.heavenhr.controller;
 
 import com.heavenhr.heavenhr.exception.ApplicationNotFoundException;
+import com.heavenhr.heavenhr.exception.DataFormatException;
 import com.heavenhr.heavenhr.exception.OfferNotFoundException;
 import com.heavenhr.heavenhr.response.BaseResponse;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +30,13 @@ public class BaseController {
             reason="No relevant application found")
     @ExceptionHandler(ApplicationNotFoundException.class)
     public void applicationNotFound() {
+        // Nothing to do
+    }
+
+    @ResponseStatus(value= HttpStatus.NOT_ACCEPTABLE,
+            reason="Invalid data format")
+    @ExceptionHandler(DataFormatException.class)
+    public void invalidFormat() {
         // Nothing to do
     }
 }

@@ -9,8 +9,10 @@ import com.heavenhr.heavenhr.entry.ApplicationEntry;
 import com.heavenhr.heavenhr.entry.UpdateEntry;
 import com.heavenhr.heavenhr.enumerations.ApplicationStatus;
 import com.heavenhr.heavenhr.exception.ApplicationNotFoundException;
+import com.heavenhr.heavenhr.exception.DataFormatException;
 import com.heavenhr.heavenhr.exception.OfferNotFoundException;
 import com.heavenhr.heavenhr.response.BaseResponse;
+import com.heavenhr.heavenhr.utils.Vaidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +27,16 @@ public class ApplicationManager {
     @Autowired
     OfferDAO offerDAO;
 
-    public BaseResponse apply(ApplicationEntry entry) throws OfferNotFoundException {
+    @Autowired
+    Vaidator vaidator;
+
+    public BaseResponse apply(ApplicationEntry entry) throws OfferNotFoundException, DataFormatException {
         OfferEntity offerEntity = offerDAO.getOne(entry.getOfferId());
         if(offerEntity == null)
             throw new OfferNotFoundException("No offer found");
+        if(!vaidator.isValidEmail(entry.getEmail())){
+            throw new DataFormatException("Invalid email address");
+        }
         ApplicationEntity entity = new ApplicationEntity();
         entity.setOfferId(entry.getOfferId());
         entity.setEmail(entry.getEmail());
@@ -49,7 +57,7 @@ public class ApplicationManager {
     public BaseResponse update(UpdateEntry entry) throws ApplicationNotFoundException {
         ApplicationEntity entity = applicationDAO.getOne(entry.getAppId());
         if(entity == null){
-            throw new ApplicationNotFoundException("No application Found");
+            throw new ApplicationNotFoundException(entry.getAppId().toString());
         }
         entity.setApplicationStatus(entry.getStatus());
         applicationDAO.save(entity);
